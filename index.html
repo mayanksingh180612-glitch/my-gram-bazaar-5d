@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gram Bazzar | Mayank Singh</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#087944;--dark:#063d2b;--gold:#ffd166}
+body{font-family:Arial,sans-serif;background:#f5f8f5;color:#25352b}
+header{background:linear-gradient(120deg,#063d2b,#109658);color:white;padding:17px 5%;position:sticky;top:0;z-index:10}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:26px;font-weight:900}.logo span{color:var(--gold)}
+button{cursor:pointer;font-weight:bold}
+.cart-btn{background:var(--gold);border:0;padding:12px 16px;border-radius:10px}
+.hero{padding:50px 5%;display:grid;grid-template-columns:1.1fr 1fr;gap:25px;align-items:center;background:linear-gradient(135deg,#dcf5e4,#fff4d6)}
+.hero h1{font-size:clamp(34px,5vw,58px);color:var(--dark);margin:16px 0}
+.hero p{line-height:1.8;color:#4b6655}
+.hero img{width:100%;height:320px;object-fit:cover;border-radius:22px}
+.pill{display:inline-block;background:#d0f2d9;color:#087944;padding:8px 13px;border-radius:30px;font-weight:bold}
+.main-btn{display:inline-block;background:var(--g);color:white;border:0;padding:13px 19px;border-radius:10px;margin-top:18px;text-decoration:none}
+.section{padding:35px 5%}
+h2{color:var(--dark);margin-bottom:18px}
+.search{width:100%;padding:15px;border:1px solid #d8e3da;border-radius:12px;font-size:16px;margin:15px 0;outline-color:var(--g)}
+.categories{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 20px}
+.cat{border:1px solid #dce6dc;background:white;padding:10px 13px;border-radius:24px}
+.cat.active,.cat:hover{background:var(--g);color:white}
+.products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.card{background:white;border-radius:15px;overflow:hidden;border:1px solid #e5ebe5;box-shadow:0 5px 18px #0000000b;transition:.2s}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:165px;object-fit:cover;background:#e6eee6}
+.info{padding:13px}
+.info h3{font-size:16px;min-height:38px}
+.info p{font-size:12px;color:#78867b;margin:6px 0}
+.price{color:var(--g);font-weight:bold;font-size:20px;margin:10px 0}
+.add{background:var(--g);color:white;border:0;padding:11px;border-radius:9px;width:100%}
+.add:hover{background:var(--dark)}
+.about{background:#e3f4e8;border-radius:18px;padding:25px;line-height:1.9}
+footer{background:var(--dark);color:white;text-align:center;padding:30px 15px;line-height:2}
+.panel{position:fixed;right:0;top:0;height:100%;width:min(400px,100%);background:white;z-index:30;padding:22px;box-shadow:-5px 0 25px #0002;overflow:auto;display:none}
+.panel.open{display:block}
+.panel-head{display:flex;justify-content:space-between;margin-bottom:20px}
+.close{border:0;background:none;font-size:25px}
+.cartrow{padding:13px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:8px}
+.cartrow button{padding:5px 10px;border:0;border-radius:5px;margin-top:6px}
+.total{font-size:23px;font-weight:bold;margin:24px 0}
+.order{width:100%;background:#168847;color:white;border:0;padding:14px;border-radius:10px}
+.empty{grid-column:1/-1;text-align:center;padding:30px}
+@media(max-width:900px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{grid-template-columns:1fr}}
+@media(max-width:600px){.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:125px}.info{padding:9px}.info h3{font-size:14px}.price{font-size:17px}.hero{padding:32px 5%}.hero img{height:220px}.section{padding:28px 4%}.logo{font-size:22px}}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="nav">
+  <div class="logo">🌾 Gram <span>Bazzar</span></div>
+  <button class="cart-btn" onclick="openCart()">🛒 Cart (<span id="count">0</span>)</button>
+ </div>
+</header>
+
+<section class="hero">
+ <div>
+  <span class="pill">🇮🇳 India's All-in-One Bazzar</span>
+  <h1>Har Samaan,<br>Ek Hi Dukaan!</h1>
+  <p>Ghar ka ration, furniture, electronics, kapde, farming items, plants, Diwali decoration, pooja ka samaan aur bahut kuch.</p>
+  <p><b>Website Creator: Mayank Singh | Class 9th</b></p>
+  <a href="#shop" class="main-btn">🛍️ Saara Samaan Dekho</a>
+ </div>
+ <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1000&q=85" alt="Indian grocery market">
+</section>
+
+<section class="section" id="shop">
+ <h2>🛍️ Explore All Products</h2>
+ <p>Apni pasand ki category chuno ya product ka naam search karo.</p>
+ <input class="search" id="search" placeholder="🔍 Rice, mobile, diya, shoes, furniture..." oninput="render()">
+ <div class="categories" id="categories"></div>
+ <div class="products" id="products"></div>
+</section>
+
+<section class="section">
+ <div class="about">
+  <h2>👨‍💻 About Me</h2>
+  Namaste! Mera naam <b>Mayank Singh</b> hai. Main Class 9th ka student hoon aur web development seekh raha hoon. Ye meri Gram Bazzar website hai, jahan alag-alag categories ke products ek hi jagah par dikhaye gaye hain.
+  <br>Note: Ye demonstration website hai. Products, prices aur availability demo hain. Ye apne aap India ke sabhi sellers se connected nahi hai.
+ </div>
+</section>
+
+<footer>
+ <h2 style="color:white">🌾 Gram Bazzar</h2>
+ <p>Made with ❤️ by Mayank Singh</p>
+ <p>Class 9th | Indian All-in-One Shopping Website</p>
+ <p>© 2026 Gram Bazzar</p>
+</footer>
+
+<div class="panel" id="panel">
+ <div class="panel-head"><h2>🛒 Your Cart</h2><button class="close" onclick="closeCart()">✕</button></div>
+ <div id="cartItems"></div>
+ <div class="total">Total: ₹<span id="total">0</span></div>
+ <button class="order" onclick="checkout()">WhatsApp Order</button>
+</div>
+
+<script>
+// Category ke hisaab se real photo links
+const photos={
+ "Grains":"photo-1586201375761-83865001e31c",
+ "Pulses":"photo-1515543904379-3d757afe72e4",
+ "Vegetables":"photo-1540420773420-3366772f4999",
+ "Fruits":"photo-1619566636858-adf3ef46400b",
+ "Dairy":"photo-1563636619-e9143da7973b",
+ "Spices":"photo-1596040033229-a9821ebd058d",
+ "Home":"photo-1556911220-bff31c812dba",
+ "Furniture":"photo-1533090481720-856c6e3c1fdc",
+ "Clothing":"photo-1483985988355-763728e1935b",
+ "Shoes":"photo-1542291026-7eec264c27ff",
+ "Electronics":"photo-1498049794561-7780e7231661",
+ "Mobile":"photo-1511707171634-5f897ff02aa9",
+ "Lights":"photo-1513151233558-d860c5398176",
+ "Diwali":"photo-1605379399642-870262d3d051",
+ "Plants":"photo-1485955900006-10f4d324d411",
+ "DJ":"photo-1470225620780-dba8ba36b745",
+ "Pooja":"photo-1604608672516-2f8c4a7d2f26",
+ "Beauty":"photo-1608248543803-ba4f8c70ae0b",
+ "Kitchen":"photo-1556911220-bff31c812dba",
+ "Stationery":"photo-1455390582262-044cdead277a",
+ "Toys":"photo-1596461404969-9ae70f2830c1",
+ "Sports":"photo-1461896836934-ffe607ba8211",
+ "Garden":"photo-1416879595882-3373a0480b5b",
+ "Cleaning":"photo-1581578731548-c64695cc6952",
+ "Building":"photo-1504307651254-35680f356dfd",
+ "Bags":"photo-1553062407-98eeb64c6a62",
+ "Pets":"photo-1450778869180-41d0601e046e"
+};
+function photo(cat){
+ const id=photos[cat]||photos.Home;
+ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=600&q=75";
+}
+
+// Format: category|product name|demo price|unit
+const raw=`
+Grains|Basmati Rice|90|1 kg
+Grains|Regular Rice|50|1 kg
+Grains|Brown Rice|100|1 kg
+Grains|Wheat (Gehun)|35|1 kg
+Grains|Wheat Flour (Aata)|40|1 kg
+Grains|Maida|38|1 kg
+Grains|Besan|80|1 kg
+Grains|Poha|50|1 kg
+Grains|Suji (Rava)|45|1 kg
+Grains|Daliya|55|1 kg
+Pulses|Toor Dal|140|1 kg
+Pulses|Moong Dal|120|1 kg
+Pulses|Chana Dal|85|1 kg
+Pulses|Masoor Dal|95|1 kg
+Pulses|Urad Dal|130|1 kg
+Pulses|Kabuli Chana|110|1 kg
+Pulses|Rajma|120|1 kg
+Pulses|White Peas|80|1 kg
+Vegetables|Potato (Aloo)|30|1 kg
+Vegetables|Onion (Pyaaz)|35|1 kg
+Vegetables|Tomato|40|1 kg
+Vegetables|Cauliflower|35|1 piece
+Vegetables|Green Chilli|60|1 kg
+Vegetables|Lady Finger|45|1 kg
+Vegetables|Brinjal|35|1 kg
+Vegetables|Spinach|25|1 bunch
+Vegetables|Carrot|50|1 kg
+Vegetables|Cucumber|35|1 kg
+Fruits|Apple|160|1 kg
+Fruits|Banana|60|1 dozen
+Fruits|Mango|100|1 kg
+Fruits|Orange|80|1 kg
+Fruits|Grapes|90|1 kg
+Fruits|Pomegranate|150|1 kg
+Fruits|Papaya|50|1 piece
+Fruits|Watermelon|35|1 kg
+Dairy|Milk|60|1 litre
+Dairy|Curd (Dahi)|50|500 g
+Dairy|Paneer|100|200 g
+Dairy|Butter|60|100 g
+Dairy|Cheese|120|200 g
+Dairy|Ghee|600|1 litre
+Spices|Turmeric Powder|45|100 g
+Spices|Red Chilli Powder|55|100 g
+Spices|Garam Masala|60|100 g
+Spices|Cumin (Jeera)|80|100 g
+Spices|Mustard Seeds|35|100 g
+Spices|Coriander Powder|40|100 g
+Spices|Black Pepper|90|100 g
+Home|Plastic Bucket|180|1 piece
+Home|Water Bottle|120|1 piece
+Home|Wall Clock|350|1 piece
+Home|Bedsheet|500|1 set
+Home|Pillow|250|1 piece
+Home|Blanket|900|1 piece
+Home|Curtains|600|1 pair
+Home|Plastic Chair|450|1 piece
+Home|Storage Box|200|1 piece
+Furniture|Study Table|2500|1 piece
+Furniture|Wooden Chair|1200|1 piece
+Furniture|Sofa Set|18000|1 set
+Furniture|Bed Frame|12000|1 piece
+Furniture|Bookshelf|2500|1 piece
+Furniture|Dining Table|7000|1 set
+Furniture|Wardrobe|8500|1 piece
+Kitchen|Pressure Cooker|1200|1 piece
+Kitchen|Frying Pan|450|1 piece
+Kitchen|Steel Plate Set|600|1 set
+Kitchen|Mixer Grinder|2500|1 piece
+Kitchen|Gas Stove|2200|1 piece
+Kitchen|Lunch Box|250|1 piece
+Kitchen|Electric Kettle|900|1 piece
+Clothing|Men's T-Shirt|350|1 piece
+Clothing|Men's Jeans|900|1 piece
+Clothing|Kurta|700|1 piece
+Clothing|Saree|1200|1 piece
+Clothing|Salwar Suit|1000|1 set
+Clothing|School Uniform|700|1 set
+Clothing|Jacket|1500|1 piece
+Shoes|Sports Shoes|1200|1 pair
+Shoes|School Shoes|600|1 pair
+Shoes|Sandals|350|1 pair
+Shoes|Slippers|150|1 pair
+Bags|School Bag|650|1 piece
+Bags|Travel Bag|1200|1 piece
+Bags|Ladies Handbag|800|1 piece
+Electronics|LED TV|12000|1 piece
+Electronics|Refrigerator|18000|1 piece
+Electronics|Washing Machine|15000|1 piece
+Electronics|Ceiling Fan|2200|1 piece
+Electronics|Table Fan|1200|1 piece
+Electronics|Air Cooler|6500|1 piece
+Electronics|Extension Board|350|1 piece
+Mobile|Smartphone|12000|1 piece
+Mobile|Phone Charger|400|1 piece
+Mobile|Earphones|300|1 piece
+Mobile|Bluetooth Speaker|900|1 piece
+Mobile|Power Bank|1200|1 piece
+Mobile|Phone Cover|150|1 piece
+Lights|LED Bulb|100|1 piece
+Lights|LED Tube Light|250|1 piece
+Lights|Joylite Decorative Lights|250|1 string
+Lights|Fairy Lights|180|1 string
+Lights|Emergency Light|650|1 piece
+Lights|Solar Garden Light|400|1 piece
+Diwali|Mitti Ka Diya|50|1 pack
+Diwali|Meetha Diya|120|1 pack
+Diwali|Decorative Diya|150|1 set
+Diwali|Electric Diya|250|1 piece
+Diwali|Diwali Lantern|200|1 piece
+Diwali|Rangoli Colours|100|1 pack
+Diwali|Pooja Decoration|250|1 set
+Diwali|LED Diwali String|300|1 string
+Diwali|Torans and Bandhanwar|150|1 piece
+Plants|Small Tulsi Plant|80|1 pot
+Plants|Money Plant|120|1 pot
+Plants|Small Tree Plant|180|1 plant
+Plants|Rose Plant|100|1 pot
+Plants|Neem Sapling|80|1 plant
+Plants|Mango Tree Sapling|150|1 plant
+Plants|Garden Soil|100|1 bag
+Garden|Watering Can|250|1 piece
+Garden|Garden Tools|450|1 set
+Garden|Plant Pot|100|1 piece
+Pooja|Pooja Thali|250|1 piece
+Pooja|Agarbatti|40|1 pack
+Pooja|Camphor (Kapoor)|50|1 pack
+Pooja|Cotton Wicks|30|1 pack
+Pooja|Pooja Oil|150|1 litre
+Pooja|Brass Bell|250|1 piece
+DJ|DJ Sound System|8000|1 set
+DJ|DJ Speaker|3500|1 piece
+DJ|Microphone|900|1 piece
+DJ|Party Disco Light|1200|1 piece
+DJ|Bluetooth Amplifier|1800|1 piece
+Beauty|Shampoo|180|1 bottle
+Beauty|Bathing Soap|40|1 piece
+Beauty|Face Wash|150|1 tube
+Beauty|Hair Oil|120|1 bottle
+Beauty|Comb|30|1 piece
+Cleaning|Washing Powder|120|1 kg
+Cleaning|Dishwash Liquid|100|1 bottle
+Cleaning|Floor Cleaner|120|1 bottle
+Cleaning|Broom (Jhadu)|100|1 piece
+Cleaning|Mop|250|1 piece
+Stationery|School Notebook|50|1 piece
+Stationery|Pen Pack|100|1 pack
+Stationery|Pencil Box|150|1 piece
+Stationery|School Books|250|1 book
+Stationery|School Geometry Box|120|1 piece
+Toys|Toy Car|250|1 piece
+Toys|Doll|350|1 piece
+Toys|Building Blocks|500|1 set
+Sports|Cricket Bat|900|1 piece
+Sports|Cricket Ball|100|1 piece
+Sports|Football|500|1 piece
+Sports|Badminton Racket|650|1 piece
+Building|Cement|380|1 bag
+Building|Paint|700|1 litre
+Building|Hammer|250|1 piece
+Building|Nails Pack|50|1 pack
+Pets|Pet Food|250|1 pack
+Pets|Pet Bowl|150|1 piece
+`;
+
+const products=raw.trim().split("\n").map((line,i)=>{
+ const [cat,name,price,unit]=line.split("|");
+ return {id:i+1,cat,name,price:Number(price),unit};
+});
+const cats=["All",...new Set(products.map(p=>p.cat))];
+let active="All",cart=[];
+
+function drawCats(){
+ document.getElementById("categories").innerHTML=cats.map(c=>
+ `<button class="cat ${active===c?'active':''}" onclick="setCat('${c}')">${c==="All"?"🌟 All Products":c}</button>`
+ ).join("");
+}
+function setCat(c){active=c;drawCats();render()}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const found=products.filter(p=>(active==="All"||p.cat===active)&&
+ (p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)));
+ document.getElementById("products").innerHTML=found.length?found.map(p=>`
+ <div class="card">
+ <img src="${photo(p.cat)}" alt="${p.name}" loading="lazy"
+ onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2f4e7/087944?text=Gram+Bazzar'">
+ <div class="info">
+ <h3>${p.name}</h3><p>${p.cat} · ${p.unit}</p>
+ <div class="price">₹${p.price}</div>
+ <button class="add" onclick="add(${p.id})">＋ Add to Cart</button>
+ </div></div>`).join(""):'<div class="empty">😕 Koi product nahi mila.</div>';
+}
+function add(id){
+ let p=products.find(x=>x.id===id),item=cart.find(x=>x.id===id);
+ if(item)item.qty++;else cart.push({...p,qty:1});
+ updateCart();
+}
+function qty(id,d){
+ let p=cart.find(x=>x.id===id);if(!p)return;
+ p.qty+=d;if(p.qty<=0)cart=cart.filter(x=>x.id!==id);
+ updateCart();
+}
+function updateCart(){
+ document.getElementById("count").textContent=cart.reduce((s,p)=>s+p.qty,0);
+ document.getElementById("total").textContent=cart.reduce((s,p)=>s+p.price*p.qty,0);
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map(p=>`
+ <div class="cartrow"><div><b>${p.name}</b><br>₹${p.price} × ${p.qty}<br>
+ <button onclick="qty(${p.id},-1)">−</button>
+ <button onclick="qty(${p.id},1)">＋</button></div>
+ <b>₹${p.price*p.qty}</b></div>`).join(""):"<p>Cart khaali hai. Products add karo!</p>";
+}
+function openCart(){document.getElementById("panel").classList.add("open")}
+function closeCart(){document.getElementById("panel").classList.remove("open")}
+function checkout(){
+ if(!cart.length){alert("Pehle products cart mein add karo!");return}
+ const message="Namaste! Gram Bazzar order:\n"+
+ cart.map(p=>p.name+" x "+p.qty+" = Rs."+p.price*p.qty).join("\n")+
+ "\nTotal: Rs."+cart.reduce((s,p)=>s+p.price*p.qty,0);
+ // Apna number country code ke saath daalo
+ const phone="91XXXXXXXXXX";
+ if(phone.includes("X")){alert("Code mein 91XXXXXXXXXX ki jagah apna WhatsApp number daalo.\n\n"+message);return}
+ window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(message),"_blank");
+}
+drawCats();render();updateCart();
+</script>
+</body>
+</html>
